@@ -11,6 +11,8 @@ import { ApplicationDetailPage } from '../pages/applications/ApplicationDetailPa
 import { SavedProgramsPage } from '../pages/saved/SavedProgramsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
 import { ProviderPortalPage } from '../pages/portal/ProviderPortalPage';
+import { MessagesPage } from '../pages/messages/MessagesPage';
+import { ConversationPage } from '../pages/messages/ConversationPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -22,6 +24,10 @@ export const AppRoutes: React.FC = () => {
         <Route path="/applications" element={<ApplicationsDashboardPage />} />
         <Route path="/saved" element={<SavedProgramsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+
+        {/* Messaging Sub-flows */}
+        <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/messages/:id" element={<ConversationPage />} />
 
         {/* Inner Detail & Sub-flows */}
         <Route path="/hospitals/:id" element={<HospitalProfilePage />} />

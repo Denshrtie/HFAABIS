@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProgramStore } from '../../stores/useProgramStore';
 import { useUserStore } from '../../stores/useUserStore';
+import { useMessageStore } from '../../stores/useMessageStore';
+import { useApplicationStore } from '../../stores/useApplicationStore';
 import { AssistanceProgram, AvailabilityStatus, ExpenseCategory, ProviderType, AssistanceType } from '../../types';
-import { AvailabilityBadge } from '../../components/common/Badge';
+import { AvailabilityBadge, ApplicationStatusBadge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 import { Modal } from '../../components/common/Modal';
 import { 
@@ -20,15 +22,24 @@ import {
   Users, 
   ShieldAlert,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  MessageSquare,
+  FileText,
+  Layers,
+  ChevronRight,
+  Send
 } from 'lucide-react';
-import { formatPHP } from '../../utils';
+import { formatPHP, formatDate } from '../../utils';
 
 export const ProviderPortalPage: React.FC = () => {
   const navigate = useNavigate();
   const { programs, addProgram, updateProgram, updateAvailability } = useProgramStore();
   const { isStaffMode, toggleStaffMode } = useUserStore();
+  const { conversations, markConversationAsRead } = useMessageStore();
+  const applications = useApplicationStore((state) => state.applications);
+  const unreadMessagesCount = useMessageStore((state) => state.totalUnreadCount());
 
+  const [activeTab, setActiveTab] = useState<'programs' | 'messages' | 'applications'>('programs');
   const [searchQuery, setSearchQuery] = useState('');
   const [editingProgram, setEditingProgram] = useState<AssistanceProgram | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -222,109 +233,284 @@ export const ProviderPortalPage: React.FC = () => {
 
         <div className="flex items-center justify-between gap-2 pt-1">
           <h2 className="text-xl font-black text-slate-900 leading-tight">
-            Assistance Program Catalog
+            {activeTab === 'programs'
+              ? 'Assistance Program Catalog'
+              : activeTab === 'messages'
+              ? 'Provider Inquiries & Chat'
+              : 'Submitted Aid Applications'}
           </h2>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={openAddModal}
-            leftIcon={<Plus className="w-4 h-4" />}
-          >
-            Add Program
-          </Button>
+          {activeTab === 'programs' && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={openAddModal}
+              leftIcon={<Plus className="w-4 h-4" />}
+            >
+              Add Program
+            </Button>
+          )}
         </div>
         <p className="text-xs text-slate-500">
-          Manage quotas, toggle real-time availability, and update program eligibility requirements.
+          {activeTab === 'programs'
+            ? 'Manage quotas, toggle real-time availability, and update program eligibility requirements.'
+            : activeTab === 'messages'
+            ? 'Communicate with patients and family members regarding eligibility and documents.'
+            : 'Review incoming patient documents, verify indigency status, and process assistance claims.'}
         </p>
       </div>
 
-      {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Filter programs in catalog..."
-          className="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-soft"
-        />
+      {/* Staff Portal Navigation Tabs */}
+      <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-200/70 rounded-2xl">
+        <button
+          type="button"
+          onClick={() => setActiveTab('programs')}
+          className={`touch-target py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === 'programs'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>Programs</span>
+          <span className="text-[10px] px-1.5 py-0.2 bg-slate-100 rounded-full">
+            {programs.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('messages')}
+          className={`touch-target py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === 'messages'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>Messages</span>
+          {unreadMessagesCount > 0 ? (
+            <span className="text-[10px] px-1.5 py-0.2 bg-amber-500 text-white rounded-full font-extrabold">
+              {unreadMessagesCount}
+            </span>
+          ) : (
+            <span className="text-[10px] px-1.5 py-0.2 bg-slate-100 rounded-full">
+              {conversations.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('applications')}
+          className={`touch-target py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === 'applications'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>Claims</span>
+          <span className="text-[10px] px-1.5 py-0.2 bg-slate-100 rounded-full">
+            {applications.length}
+          </span>
+        </button>
       </div>
 
-      {/* Programs Management Cards */}
-      <div className="space-y-3.5">
-        {filteredPrograms.map((prog) => (
-          <div
-            key={prog.id}
-            className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-soft space-y-3"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-slate-900 leading-tight">
-                  {prog.name}
-                </h4>
-                <p className="text-xs text-brand-700 font-semibold">{prog.providerName}</p>
-                <span className="text-[11px] text-slate-500 block">{prog.location}</span>
-              </div>
-
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => navigate(`/programs/${prog.id}`)}
-                  title="View as patient"
-                  className="touch-target p-2 text-slate-400 hover:text-brand-600 hover:bg-slate-100 rounded-xl transition"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openEditModal(prog)}
-                  title="Edit program details"
-                  className="touch-target p-2 text-brand-600 hover:bg-brand-50 rounded-xl transition"
-                >
-                  <Edit3 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Availability Status Selector (Instant patient update) */}
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-700">Live Intake Availability:</span>
-                <AvailabilityBadge status={prog.availability} />
-              </div>
-
-              <div className="grid grid-cols-3 gap-1.5 pt-1">
-                {(['available', 'limited', 'currently_unavailable'] as AvailabilityStatus[]).map(
-                  (st) => (
-                    <button
-                      key={st}
-                      type="button"
-                      onClick={() => handleQuickAvailabilityChange(prog.id, st)}
-                      className={`touch-target py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all ${
-                        prog.availability === st
-                          ? st === 'available'
-                            ? 'bg-emerald-600 text-white border-emerald-600'
-                            : st === 'limited'
-                            ? 'bg-amber-500 text-white border-amber-500'
-                            : 'bg-rose-600 text-white border-rose-600'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      {st === 'available' ? 'Available' : st === 'limited' ? 'Limited' : 'Paused'}
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Rules Summary */}
-            <div className="flex items-center justify-between text-xs text-slate-600 pt-1 border-t border-slate-100">
-              <span>Max Income: <strong>₱{prog.eligibilityRules.maxMonthlyIncome.toLocaleString()}</strong></span>
-              <span>Benefit: <strong>{formatPHP(prog.maxAmountCovered)}</strong></span>
-            </div>
+      {/* TAB 1: PROGRAMS CATALOG */}
+      {activeTab === 'programs' && (
+        <div className="space-y-3.5">
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Filter programs in catalog..."
+              className="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-soft"
+            />
           </div>
-        ))}
-      </div>
+
+          {/* Programs Management Cards */}
+          <div className="space-y-3.5">
+            {filteredPrograms.map((prog) => (
+              <div
+                key={prog.id}
+                className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-soft space-y-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-0.5">
+                    <h4 className="text-sm font-bold text-slate-900 leading-tight">
+                      {prog.name}
+                    </h4>
+                    <p className="text-xs text-brand-700 font-semibold">{prog.providerName}</p>
+                    <span className="text-[11px] text-slate-500 block">{prog.location}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/programs/${prog.id}`)}
+                      title="View as patient"
+                      className="touch-target p-2 text-slate-400 hover:text-brand-600 hover:bg-slate-100 rounded-xl transition"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openEditModal(prog)}
+                      title="Edit program details"
+                      className="touch-target p-2 text-brand-600 hover:bg-brand-50 rounded-xl transition"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Availability Status Selector */}
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-700">Live Intake Availability:</span>
+                    <AvailabilityBadge status={prog.availability} />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1.5 pt-1">
+                    {(['available', 'limited', 'currently_unavailable'] as AvailabilityStatus[]).map(
+                      (st) => (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => handleQuickAvailabilityChange(prog.id, st)}
+                          className={`touch-target py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all ${
+                            prog.availability === st
+                              ? st === 'available'
+                                ? 'bg-emerald-600 text-white border-emerald-600'
+                                : st === 'limited'
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'bg-rose-600 text-white border-rose-600'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          {st === 'available' ? 'Available' : st === 'limited' ? 'Limited' : 'Paused'}
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Rules Summary */}
+                <div className="flex items-center justify-between text-xs text-slate-600 pt-1 border-t border-slate-100">
+                  <span>Max Income: <strong>₱{prog.eligibilityRules.maxMonthlyIncome.toLocaleString()}</strong></span>
+                  <span>Benefit: <strong>{formatPHP(prog.maxAmountCovered)}</strong></span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: MESSAGES */}
+      {activeTab === 'messages' && (
+        <div className="space-y-3">
+          {conversations.length === 0 ? (
+            <div className="p-8 text-center bg-white rounded-3xl border border-slate-200 space-y-2">
+              <MessageSquare className="w-8 h-8 text-slate-400 mx-auto" />
+              <h4 className="text-sm font-bold text-slate-800">No message inquiries yet</h4>
+              <p className="text-xs text-slate-500">
+                Patient messages received from program details or application status cards will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {conversations.map((conv) => {
+                const lastMsg = conv.messages[conv.messages.length - 1];
+                const hasUnread = conv.unreadCount > 0;
+
+                return (
+                  <div
+                    key={conv.id}
+                    onClick={() => {
+                      markConversationAsRead(conv.id);
+                      navigate(`/messages/${conv.id}`);
+                    }}
+                    className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-soft hover:shadow-card hover:border-amber-300 transition-all cursor-pointer space-y-2 active:scale-[0.99]"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-amber-700 block">
+                          {conv.providerName}
+                        </span>
+                        <h4 className="text-sm font-bold text-slate-900">
+                          {conv.programName || 'General Assistance Inquiry'}
+                        </h4>
+                        {conv.applicationId && (
+                          <span className="text-[11px] font-mono text-slate-500">
+                            Claim ID #{conv.applicationId}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span className="text-[10px] text-slate-400 block">
+                          {lastMsg?.timestamp || 'Recent'}
+                        </span>
+                        {hasUnread && (
+                          <span className="inline-block mt-1 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-extrabold rounded-full">
+                            {conv.unreadCount} new
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 flex items-center justify-between">
+                      <p className="truncate mr-2">
+                        <strong className="text-slate-900">{lastMsg?.sender === 'user' ? 'Patient: ' : 'Staff: '}</strong>
+                        {lastMsg?.text || 'No message text'}
+                      </p>
+                      <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 3: APPLICATIONS */}
+      {activeTab === 'applications' && (
+        <div className="space-y-3">
+          {applications.map((app) => (
+            <div
+              key={app.id}
+              onClick={() => navigate(`/applications/${app.id}`)}
+              className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-soft space-y-2.5 cursor-pointer hover:shadow-card hover:border-brand-300 transition"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="font-mono text-xs font-bold text-slate-500">
+                    #{app.referenceNumber}
+                  </span>
+                  <h4 className="text-sm font-bold text-slate-900">{app.patientName}</h4>
+                  <p className="text-xs text-brand-700 font-semibold">{app.programName}</p>
+                </div>
+                <ApplicationStatusBadge status={app.status} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 pt-2 border-t border-slate-100">
+                <div>
+                  <span className="text-slate-400 block text-[10px]">Diagnosis:</span>
+                  <span className="font-medium truncate block">{app.medicalCondition}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px]">Medical Bill:</span>
+                  <span className="font-bold text-slate-900">{formatPHP(app.estimatedExpense)}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Add / Edit Program Modal */}
       <Modal

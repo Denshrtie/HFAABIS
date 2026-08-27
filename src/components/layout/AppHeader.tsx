@@ -64,13 +64,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ title }) => {
                 </div>
                 <div className="flex flex-col leading-none">
                   <span className="text-base font-extrabold tracking-tight text-brand-900 flex items-center gap-1">
-                    HFAABIS
+                    Alalay
                     <span className="text-[10px] font-bold px-1.5 py-0.2 bg-sage-100 text-sage-800 rounded-full border border-sage-200">
                       PH
                     </span>
                   </span>
                   <span className="text-[10px] text-slate-500 font-medium">
-                    Health Financial Aid PH
+                    Your guide to healthcare assistance
                   </span>
                 </div>
               </Link>

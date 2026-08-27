@@ -172,3 +172,27 @@ export interface UserProfile {
   isIndigentCertified: boolean;
   preferredHospitalId?: string;
 }
+
+export type MessageSender = "user" | "provider";
+
+export interface Message {
+  id: string;
+  sender: MessageSender;
+  text: string;
+  timestamp: string;
+  read: boolean;
+}
+
+export interface Conversation {
+  id: string;
+  providerId: string;
+  providerName: string;
+  providerType?: ProviderType | string;
+  programId?: string;
+  programName?: string;
+  applicationId?: string;
+  messages: Message[];
+  unreadCount: number;
+  updatedAt: string;
+  isOnline?: boolean;
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApplicationStore } from '../../stores/useApplicationStore';
 import { useProgramStore } from '../../stores/useProgramStore';
+import { useMessageStore } from '../../stores/useMessageStore';
 import { ApplicationStatusBadge } from '../../components/common/Badge';
 import { StatusTimeline } from '../../components/applications/StatusTimeline';
 import { DocumentUploadRow } from '../../components/documents/DocumentUploadRow';
@@ -21,7 +22,8 @@ import {
   AlertCircle, 
   CheckCircle2, 
   Printer, 
-  Share2 
+  Share2,
+  MessageSquare
 } from 'lucide-react';
 import { formatPHP, formatDate } from '../../utils';
 
@@ -29,6 +31,7 @@ export const ApplicationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getApplicationById, attachDocumentToApplication } = useApplicationStore();
+  const getOrCreateConversation = useMessageStore((state) => state.getOrCreateConversation);
   const application = getApplicationById(id || '');
   const program = useProgramStore((state) =>
     application ? state.getProgramById(application.programId) : undefined
@@ -197,8 +200,45 @@ export const ApplicationDetailPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Need Help / Contact Provider Support Card */}
+      <section className="p-4 rounded-3xl bg-brand-50/70 border border-brand-200/80 shadow-soft space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center shrink-0">
+            <MessageSquare className="w-5 h-5" />
+          </div>
+          <div className="space-y-0.5 text-xs">
+            <h4 className="font-bold text-brand-950">
+              Need help with your application?
+            </h4>
+            <p className="text-brand-800">
+              Have questions about your submitted documents, medical assessment, or approval status? Inquire with the assistance provider.
+            </p>
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          size="md"
+          fullWidth
+          onClick={() => {
+            const convId = getOrCreateConversation({
+              providerId: application.hospitalName || `prov-${application.providerName}`,
+              providerName: application.providerName,
+              programId: application.programId,
+              programName: application.programName,
+              applicationId: application.referenceNumber,
+            });
+            navigate(`/messages/${convId}`);
+          }}
+          leftIcon={<MessageSquare className="w-4 h-4 text-brand-600" />}
+          className="bg-white border-brand-300 text-brand-700 hover:bg-brand-50 font-bold"
+        >
+          Contact Provider
+        </Button>
+      </section>
+
       {/* Download / Print Confirmation Voucher */}
-      <div className="space-y-2 pt-2">
+      <div className="space-y-2 pt-1">
         <Button
           variant="outline"
           size="lg"
@@ -214,7 +254,7 @@ export const ApplicationDetailPage: React.FC = () => {
       <Modal
         isOpen={showVoucherModal}
         onClose={() => setShowVoucherModal(false)}
-        title="Official HFAABIS Acknowledgement Slip"
+        title="Official Alalay Acknowledgement Slip"
         maxWidth="md"
       >
         <div className="space-y-4 text-xs text-slate-800">
@@ -225,7 +265,7 @@ export const ApplicationDetailPage: React.FC = () => {
                 Republic of the Philippines
               </span>
               <h3 className="text-base font-black text-slate-900">
-                HEALTHCARE FINANCIAL AID ACKNOWLEDGEMENT
+                ALALAY HEALTHCARE FINANCIAL AID ACKNOWLEDGEMENT
               </h3>
               <p className="text-[11px] text-slate-600">
                 Presented to Hospital Billing & Social Work Division

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProgramStore } from '../../stores/useProgramStore';
+import { useMessageStore } from '../../stores/useMessageStore';
 import { AvailabilityBadge, AssistanceTypeBadge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 import { DisclaimerCard } from '../../components/common/DisclaimerCard';
@@ -21,7 +22,8 @@ import {
   ShieldCheck,
   Check,
   Share2,
-  Sparkles
+  Sparkles,
+  MessageSquare
 } from 'lucide-react';
 import { formatPHP, formatDate } from '../../utils';
 
@@ -29,6 +31,7 @@ export const ProgramDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProgramById, isBookmarked, toggleBookmark } = useProgramStore();
+  const getOrCreateConversation = useMessageStore((state) => state.getOrCreateConversation);
 
   const program = getProgramById(id || '');
   const [openProcedureIndex, setOpenProcedureIndex] = useState<number | null>(0);
@@ -51,7 +54,7 @@ export const ProgramDetailPage: React.FC = () => {
     if (navigator.share) {
       navigator.share({
         title: program.name,
-        text: `Check out ${program.name} on HFAABIS`,
+        text: `Check out ${program.name} on Alalay`,
         url: window.location.href,
       }).catch(() => {});
     } else {
@@ -301,8 +304,28 @@ export const ProgramDetailPage: React.FC = () => {
       {/* Mandatory Disclaimer */}
       <DisclaimerCard />
 
-      {/* Fixed Sticky Action Bar at Bottom */}
-      <div className="pt-4 flex flex-col gap-2">
+      {/* Action Buttons at Bottom */}
+      <div className="pt-4 flex flex-col gap-2.5">
+        <Button
+          variant="outline"
+          size="lg"
+          fullWidth
+          onClick={() => {
+            const convId = getOrCreateConversation({
+              providerId: program.hospitalId || `prov-${program.providerType}`,
+              providerName: program.providerName,
+              providerType: program.providerType,
+              programId: program.id,
+              programName: program.name,
+            });
+            navigate(`/messages/${convId}`);
+          }}
+          leftIcon={<MessageSquare className="w-5 h-5 text-brand-600" />}
+          className="border-brand-300 text-brand-700 hover:bg-brand-50"
+        >
+          Contact Provider
+        </Button>
+
         <Button
           variant="primary"
           size="lg"
@@ -310,15 +333,16 @@ export const ProgramDetailPage: React.FC = () => {
           onClick={() => navigate(`/apply/${program.id}`)}
           rightIcon={<ArrowRight className="w-5 h-5" />}
         >
-          Apply Online Now
+          Apply Online
         </Button>
 
         <Button
           variant="outline"
-          size="md"
+          size="sm"
           fullWidth
           onClick={() => navigate('/eligibility')}
           leftIcon={<Sparkles className="w-4 h-4" />}
+          className="text-slate-500 border-slate-200 mt-1"
         >
           Run Full Eligibility Pre-Check
         </Button>

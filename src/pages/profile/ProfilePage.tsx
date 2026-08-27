@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../../stores/useUserStore';
+import { useMessageStore } from '../../stores/useMessageStore';
 import { Button } from '../../components/common/Button';
 import { Modal } from '../../components/common/Modal';
 import { 
@@ -16,13 +17,16 @@ import {
   FileText, 
   Info,
   HeartPulse,
-  CreditCard
+  CreditCard,
+  MessageSquare,
+  ChevronRight
 } from 'lucide-react';
 import { formatPHP } from '../../utils';
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { profile, updateProfile, isStaffMode, toggleStaffMode, resetAllMockData } = useUserStore();
+  const unreadMessagesCount = useMessageStore((state) => state.totalUnreadCount());
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [resetModalOpen, setResetModalOpen] = useState(false);
@@ -125,6 +129,42 @@ export const ProfilePage: React.FC = () => {
             <span className="font-bold text-slate-900">{formatPHP(profile.monthlyHouseholdIncome)}</span>
           </div>
         </div>
+      </section>
+
+      {/* Messages / Provider Inquiries */}
+      <section className="space-y-2.5">
+        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+          Communication & Support
+        </h3>
+
+        <button
+          type="button"
+          onClick={() => navigate('/messages')}
+          className="touch-target w-full p-4 rounded-3xl bg-white border border-slate-200/90 shadow-soft hover:shadow-card hover:border-brand-300 transition flex items-center justify-between text-left group active:scale-[0.99]"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <MessageSquare className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 leading-tight">
+                Messages
+              </h4>
+              <p className="text-xs text-slate-500">
+                Direct inquiries with hospital & LGU providers
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {unreadMessagesCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-brand-600 text-white text-[11px] font-extrabold shadow-sm animate-pulse">
+                {unreadMessagesCount} new
+              </span>
+            )}
+            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-brand-600 group-hover:translate-x-0.5 transition" />
+          </div>
+        </button>
       </section>
 
       {/* Mode Switcher: Patient View <-> Staff Mode */}

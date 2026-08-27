@@ -125,10 +125,10 @@ export const HomePage: React.FC = () => {
           </span>
         </div>
         <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-          Hello, {user.name.split(' ')[0]} 👋
+          How can Alalay help you today?
         </h2>
         <p className="text-xs sm:text-sm font-medium text-slate-500">
-          Find and apply for healthcare financial assistance that fits your needs.
+          Find healthcare assistance that may help you and check what you qualify for.
         </p>
       </section>
 
