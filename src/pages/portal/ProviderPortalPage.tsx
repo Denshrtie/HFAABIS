@@ -519,10 +519,34 @@ export const ProviderPortalPage: React.FC = () => {
           setIsAddModalOpen(false);
           setEditingProgram(null);
         }}
-        title={editingProgram ? `Edit Program: ${editingProgram.name}` : 'Add New Assistance Program'}
+        title={editingProgram ? `Edit: ${editingProgram.name}` : 'Add New Assistance Program'}
         maxWidth="lg"
+        footer={
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => {
+                setIsAddModalOpen(false);
+                setEditingProgram(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form="program-form"
+              variant="primary"
+              size="md"
+              fullWidth
+            >
+              {editingProgram ? 'Save Program Changes' : 'Publish Program to Catalog'}
+            </Button>
+          </div>
+        }
       >
-        <form onSubmit={handleSaveProgram} className="space-y-4 text-xs">
+        <form id="program-form" onSubmit={handleSaveProgram} className="space-y-4 text-xs pb-1">
           {/* Program Name */}
           <div className="space-y-1">
             <label className="font-bold text-slate-800">Program Title *</label>
@@ -537,7 +561,7 @@ export const ProviderPortalPage: React.FC = () => {
           </div>
 
           {/* Provider Name + Provider Type */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="font-bold text-slate-800">Provider Agency *</label>
               <input
@@ -566,7 +590,7 @@ export const ProviderPortalPage: React.FC = () => {
           </div>
 
           {/* Assistance Type + Location */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="font-bold text-slate-800">Assistance Type *</label>
               <select
@@ -595,7 +619,7 @@ export const ProviderPortalPage: React.FC = () => {
           </div>
 
           {/* Max Amount + Max Income */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="font-bold text-slate-800">Max Benefit Amount (₱)</label>
               <input
@@ -678,7 +702,7 @@ export const ProviderPortalPage: React.FC = () => {
           </div>
 
           {/* Contact Info (Phone & Email) */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="font-bold text-slate-800">Help Desk Phone</label>
               <input
@@ -710,29 +734,6 @@ export const ProviderPortalPage: React.FC = () => {
               />
               <span>Requires Barangay Certificate of Indigency</span>
             </label>
-          </div>
-
-          {/* Modal Actions */}
-          <div className="flex gap-2 pt-3 border-t border-slate-100">
-            <Button
-              type="button"
-              variant="outline"
-              size="md"
-              onClick={() => {
-                setIsAddModalOpen(false);
-                setEditingProgram(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              fullWidth
-            >
-              {editingProgram ? 'Save Changes' : 'Publish Program to Catalog'}
-            </Button>
           </div>
         </form>
       </Modal>

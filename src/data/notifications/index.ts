@@ -188,5 +188,79 @@ export const INITIAL_APPLICATIONS: ApplicationSubmission[] = [
         notes: "Z-Benefit Pre-authorization Letter issued: ₱275,000 credited to PHC Patient Account."
       }
     ]
+  },
+  {
+    id: "app-seed-03",
+    referenceNumber: "APP-2026-0912",
+    programId: "prog-dswd-aics-04",
+    programName: "DSWD Assistance to Individuals in Crisis Situations (AICS)",
+    providerName: "Department of Social Welfare and Development (DSWD)",
+    hospitalName: "Philippine General Hospital (PGH)",
+    patientName: "Juan Dela Cruz",
+    patientAge: 46,
+    patientContact: "+63 917 555 0192",
+    patientEmail: "juan.delacruz@example.com",
+    patientAddress: "142 Dimasalang St., Sampaloc, Manila",
+    householdIncome: 14000,
+    householdSize: 4,
+    medicalCondition: "Chemotherapy & Hospital Medication Co-Pay",
+    estimatedExpense: 55000,
+    insuranceStatus: "philhealth",
+    notes: "Requesting DSWD Guarantee Letter for hospital billing and oncology medication subsidy.",
+    submissionDate: "2026-08-18T08:00:00Z",
+    status: "approved",
+    estimatedResolutionDate: "Approved",
+    assistanceAmountGranted: 45000,
+    documentsUploaded: [
+      {
+        docName: "Clinical Abstract / Medical Certificate",
+        fileName: "clinical_abstract_chemo_pgh.pdf",
+        fileSize: 1250000,
+        fileType: "application/pdf",
+        uploadedAt: "2026-08-18T07:45:00Z",
+        status: "completed"
+      },
+      {
+        docName: "Hospital Statement of Account (SOA)",
+        fileName: "pgh_billing_chemo_aug18.pdf",
+        fileSize: 980000,
+        fileType: "application/pdf",
+        uploadedAt: "2026-08-18T07:50:00Z",
+        status: "completed"
+      },
+      {
+        docName: "Barangay Certificate of Indigency",
+        fileName: "brgy_indigency_sampaloc_2026.jpg",
+        fileSize: 1950000,
+        fileType: "image/jpeg",
+        uploadedAt: "2026-08-18T07:52:00Z",
+        status: "completed"
+      },
+      {
+        docName: "Valid Government ID",
+        fileName: "philsys_id_front_back.png",
+        fileSize: 1600000,
+        fileType: "image/png",
+        uploadedAt: "2026-08-18T07:55:00Z",
+        status: "completed"
+      }
+    ],
+    statusHistory: [
+      {
+        status: "submitted",
+        timestamp: "2026-08-18T08:00:00Z",
+        notes: "Application submitted online for DSWD AICS Medical Assistance."
+      },
+      {
+        status: "under_review",
+        timestamp: "2026-08-19T10:15:00Z",
+        notes: "Social Worker evaluated indigency certificate and hospital SOA."
+      },
+      {
+        status: "approved",
+        timestamp: "2026-08-21T14:30:00Z",
+        notes: "Guarantee Letter issued: ₱45,000 granted and endorsed to PGH Billing Office."
+      }
+    ]
   }
 ];

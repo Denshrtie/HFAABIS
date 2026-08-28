@@ -1,4 +1,4 @@
-FRONTEND PRODUCT REQUIREMENTS DOCUMENT (PRD)
+/* FRONTEND PRODUCT REQUIREMENTS DOCUMENT (PRD)
 1. Document Overview & Source of Truth
 Document Title: Healthcare Financial Assistance and Benefits Information System Frontend PRD
 Original Project Specification: Software Engineering Activity 2: From Problem to Prototype Plan

@@ -10,7 +10,19 @@ function loadApplications(): ApplicationSubmission[] {
     const raw = localStorage.getItem(STORAGE_KEY_APPLICATIONS);
     if (!raw) return INITIAL_APPLICATIONS;
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Merge any initial seed applications that might be missing in older stored versions
+      const existingRefs = new Set(parsed.map((a: ApplicationSubmission) => a.referenceNumber?.toLowerCase()));
+      const missingSeeds = INITIAL_APPLICATIONS.filter(
+        (seed) => !existingRefs.has(seed.referenceNumber.toLowerCase())
+      );
+      if (missingSeeds.length > 0) {
+        const merged = [...parsed, ...missingSeeds];
+        localStorage.setItem(STORAGE_KEY_APPLICATIONS, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
+    }
     return INITIAL_APPLICATIONS;
   } catch (e) {
     console.error('Error loading applications from localStorage:', e);
@@ -42,7 +54,13 @@ interface ApplicationState {
   submitApplication: (payload: CreateApplicationPayload) => ApplicationSubmission;
   getApplicationById: (id: string) => ApplicationSubmission | undefined;
   getApplicationByRef: (ref: string) => ApplicationSubmission | undefined;
-  updateApplicationStatus: (id: string, status: ApplicationStatus, notes: string, actionRequired?: string) => void;
+  updateApplicationStatus: (
+    id: string,
+    status: ApplicationStatus,
+    notes: string,
+    actionRequired?: string,
+    assistanceAmountGranted?: number
+  ) => void;
   attachDocumentToApplication: (appId: string, document: UploadedDocument) => void;
   resetApplicationsToDefault: () => void;
 }
@@ -100,19 +118,39 @@ export const useApplicationStore = create<ApplicationState>((set, get) => ({
   },
 
   getApplicationById: (id: string) => {
+    if (!id) return undefined;
+    const normalized = id.trim().toLowerCase();
     const state = get();
-    return state.applications.find((a) => a.id === id || a.referenceNumber === id);
+    return state.applications.find(
+      (a) =>
+        a.id.toLowerCase() === normalized ||
+        a.referenceNumber.toLowerCase() === normalized
+    );
   },
 
   getApplicationByRef: (ref: string) => {
-    return get().applications.find((a) => a.referenceNumber === ref);
+    if (!ref) return undefined;
+    const normalized = ref.trim().toLowerCase();
+    return get().applications.find(
+      (a) => a.referenceNumber.toLowerCase() === normalized
+    );
   },
 
-  updateApplicationStatus: (id: string, status: ApplicationStatus, notes: string, actionRequired?: string) => {
+  updateApplicationStatus: (
+    id: string,
+    status: ApplicationStatus,
+    notes: string,
+    actionRequired?: string,
+    assistanceAmountGranted?: number
+  ) => {
     set((state) => {
       const timestamp = new Date().toISOString();
+      const normalized = id.trim().toLowerCase();
       const updated = state.applications.map((app) => {
-        if (app.id === id || app.referenceNumber === id) {
+        if (
+          app.id.toLowerCase() === normalized ||
+          app.referenceNumber.toLowerCase() === normalized
+        ) {
           const newHistory = [
             ...app.statusHistory,
             { status, timestamp, notes, actionRequired },
@@ -120,6 +158,11 @@ export const useApplicationStore = create<ApplicationState>((set, get) => ({
           return {
             ...app,
             status,
+            estimatedResolutionDate: status === 'approved' ? 'Approved' : status === 'rejected' ? 'Declined' : app.estimatedResolutionDate,
+            assistanceAmountGranted:
+              assistanceAmountGranted !== undefined
+                ? assistanceAmountGranted
+                : app.assistanceAmountGranted,
             statusHistory: newHistory,
           };
         }
@@ -137,8 +180,12 @@ export const useApplicationStore = create<ApplicationState>((set, get) => ({
 
   attachDocumentToApplication: (appId: string, document: UploadedDocument) => {
     set((state) => {
+      const normalized = appId.trim().toLowerCase();
       const updated = state.applications.map((app) => {
-        if (app.id === appId || app.referenceNumber === appId) {
+        if (
+          app.id.toLowerCase() === normalized ||
+          app.referenceNumber.toLowerCase() === normalized
+        ) {
           const existingDocs = app.documentsUploaded.filter(
             (d) => d.docName !== document.docName
           );

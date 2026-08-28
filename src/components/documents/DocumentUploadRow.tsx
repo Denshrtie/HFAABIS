@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { UploadedDocument } from '../../types';
 import { Upload, FileText, CheckCircle2, AlertCircle, Trash2, Eye, Loader2 } from 'lucide-react';
 import { Modal } from '../common/Modal';
+import { Button } from '../common/Button';
 
 interface DocumentUploadRowProps {
   docName: string;
@@ -181,20 +182,30 @@ export const DocumentUploadRow: React.FC<DocumentUploadRowProps> = ({
         onClose={() => setPreviewOpen(false)}
         title={uploadedDoc?.fileName || docName}
         maxWidth="md"
+        footer={
+          <Button
+            variant="outline"
+            size="md"
+            fullWidth
+            onClick={() => setPreviewOpen(false)}
+          >
+            Close Preview
+          </Button>
+        }
       >
         <div className="space-y-4 text-center">
           {localPreviewUrl ? (
-            <div className="max-h-[60vh] overflow-hidden rounded-2xl border border-slate-200">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center p-2">
               <img
                 src={localPreviewUrl}
                 alt="Document preview"
-                className="w-full h-auto object-contain"
+                className="max-h-[60vh] max-w-full h-auto object-contain rounded-xl"
               />
             </div>
           ) : (
             <div className="p-8 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
               <FileText className="w-12 h-12 text-brand-600 mx-auto" />
-              <p className="text-sm font-bold text-slate-800">{uploadedDoc?.fileName}</p>
+              <p className="text-sm font-bold text-slate-800 break-all">{uploadedDoc?.fileName}</p>
               <p className="text-xs text-slate-500">
                 PDF document verified and securely stored in client memory.
               </p>

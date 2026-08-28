@@ -223,14 +223,37 @@ export const ProgramFilters: React.FC<ProgramFiltersProps> = ({
         onClose={() => setShowAdvancedModal(false)}
         title="More Assistance Filters"
         maxWidth="md"
+        footer={
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="md"
+              fullWidth
+              onClick={() => {
+                onReset();
+                setShowAdvancedModal(false);
+              }}
+            >
+              Reset All
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              onClick={() => setShowAdvancedModal(false)}
+            >
+              Apply Filters ({totalResultsCount})
+            </Button>
+          </div>
+        }
       >
-        <div className="space-y-5">
+        <div className="space-y-4 text-xs pb-1">
           {/* Assistance Type */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
               Assistance Type
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {[
                 { id: 'all', label: 'All Types' },
                 { id: 'financial_aid', label: 'Direct Financial Aid' },
@@ -260,11 +283,11 @@ export const ProgramFilters: React.FC<ProgramFiltersProps> = ({
           </div>
 
           {/* Provider Type */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
               Provider Category
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {[
                 { id: 'all', label: 'All Providers' },
                 { id: 'government_lgu', label: 'DOH / LGU / Gov’t' },
@@ -294,11 +317,11 @@ export const ProgramFilters: React.FC<ProgramFiltersProps> = ({
           </div>
 
           {/* Availability Filter */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
               Availability Status
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {[
                 { id: 'all', label: 'Any Status' },
                 { id: 'available', label: 'Available Only' },
@@ -326,8 +349,8 @@ export const ProgramFilters: React.FC<ProgramFiltersProps> = ({
           </div>
 
           {/* Location input */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
               Location / City Filter
             </label>
             <input
@@ -339,27 +362,6 @@ export const ProgramFilters: React.FC<ProgramFiltersProps> = ({
               placeholder="e.g. Manila, Quezon City, NCR"
               className="w-full h-11 px-3 bg-white rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2 pt-2">
-            <Button
-              variant="outline"
-              fullWidth
-              onClick={() => {
-                onReset();
-                setShowAdvancedModal(false);
-              }}
-            >
-              Reset
-            </Button>
-            <Button
-              variant="primary"
-              fullWidth
-              onClick={() => setShowAdvancedModal(false)}
-            >
-              Apply Filters
-            </Button>
           </div>
         </div>
       </Modal>

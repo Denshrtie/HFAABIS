@@ -40,6 +40,17 @@ export const ProfilePage: React.FC = () => {
   const [philhealth, setPhilhealth] = useState(profile.philhealthNumber);
   const [income, setIncome] = useState(profile.monthlyHouseholdIncome);
 
+  const handleOpenEditModal = () => {
+    setName(profile.name);
+    setPhone(profile.phone);
+    setEmail(profile.email);
+    setAddress(profile.address);
+    setCity(profile.city);
+    setPhilhealth(profile.philhealthNumber);
+    setIncome(profile.monthlyHouseholdIncome);
+    setEditModalOpen(true);
+  };
+
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfile({
@@ -75,13 +86,14 @@ export const ProfilePage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setEditModalOpen(true)}
+            onClick={handleOpenEditModal}
             aria-label="Edit profile"
             className="touch-target p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition active:scale-95"
           >
             <Edit3 className="w-4 h-4" />
           </button>
         </div>
+
 
         {/* PhilHealth & Indigency Tag */}
         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-brand-600/70 text-xs">
@@ -234,23 +246,50 @@ export const ProfilePage: React.FC = () => {
         onClose={() => setEditModalOpen(false)}
         title="Edit Patient Information"
         maxWidth="md"
+        footer={
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => setEditModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form="edit-profile-form"
+              variant="primary"
+              size="md"
+              fullWidth
+            >
+              Save Profile Changes
+            </Button>
+          </div>
+        }
       >
-        <form onSubmit={handleSaveProfile} className="space-y-3.5 text-xs">
+        <form
+          id="edit-profile-form"
+          onSubmit={handleSaveProfile}
+          className="space-y-3.5 text-xs pb-1"
+        >
           <div className="space-y-1">
             <label className="font-bold text-slate-800">Full Name</label>
             <input
               type="text"
+              required
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="font-bold text-slate-800">Phone</label>
               <input
                 type="tel"
+                required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -260,6 +299,7 @@ export const ProfilePage: React.FC = () => {
               <label className="font-bold text-slate-800">Email</label>
               <input
                 type="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -273,24 +313,26 @@ export const ProfilePage: React.FC = () => {
               type="text"
               value={philhealth}
               onChange={(e) => setPhilhealth(e.target.value)}
-              className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="font-bold text-slate-800">Address</label>
               <input
                 type="text"
+                required
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
             <div className="space-y-1">
-              <label className="font-bold text-slate-800">City</label>
+              <label className="font-bold text-slate-800">City / Province</label>
               <input
                 type="text"
+                required
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -302,29 +344,12 @@ export const ProfilePage: React.FC = () => {
             <label className="font-bold text-slate-800">Monthly Household Income (PHP)</label>
             <input
               type="number"
+              required
+              min={0}
               value={income}
               onChange={(e) => setIncome(Number(e.target.value))}
               className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="md"
-              onClick={() => setEditModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              fullWidth
-            >
-              Save Profile Changes
-            </Button>
           </div>
         </form>
       </Modal>
@@ -335,11 +360,7 @@ export const ProfilePage: React.FC = () => {
         onClose={() => setResetModalOpen(false)}
         title="Reset All Mock Data?"
         maxWidth="sm"
-      >
-        <div className="space-y-4 text-xs text-slate-700">
-          <p>
-            This will clear your local storage and restore all initial Philippine assistance programs, sample claims, bookmarks, and mock notifications to default settings.
-          </p>
+        footer={
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -352,11 +373,20 @@ export const ProfilePage: React.FC = () => {
               variant="danger"
               size="md"
               fullWidth
-              onClick={resetAllMockData}
+              onClick={() => {
+                resetAllMockData();
+                setResetModalOpen(false);
+              }}
             >
               Reset Everything
             </Button>
           </div>
+        }
+      >
+        <div className="space-y-3 text-xs text-slate-700">
+          <p className="leading-relaxed">
+            This will clear your local storage and restore all initial Philippine assistance programs, sample claims, bookmarks, and mock notifications to default settings.
+          </p>
         </div>
       </Modal>
     </div>

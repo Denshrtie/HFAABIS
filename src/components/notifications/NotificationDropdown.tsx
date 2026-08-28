@@ -58,7 +58,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onCl
           <p className="text-sm font-medium">No new notifications</p>
         </div>
       ) : (
-        <div className="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1">
+        <div className="space-y-2.5">
           {notifications.map((n) => (
             <div
               key={n.id}
@@ -99,10 +99,13 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onCl
       )}
 
       {onClose && (
-        <Button variant="outline" size="sm" fullWidth onClick={onClose}>
-          Close
-        </Button>
+        <div className="pt-2">
+          <Button variant="outline" size="sm" fullWidth onClick={onClose}>
+            Close
+          </Button>
+        </div>
       )}
     </div>
   );
 };
+
